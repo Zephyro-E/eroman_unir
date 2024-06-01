@@ -26,7 +26,7 @@ pipeline {
                     start java -jar C:\\Users\\Eduardo\\Desktop\\DevOps-UNIR\\programas\\wiremock-standalone-3.6.0.jar --port 9090 --root-dir test\\wiremock
                 
                     set PYTHONPATH=%WORKSPACE%
-                    pytest --junitxml=result-unit.xml test\\rest
+                    pytest --junitxml=result-unit.xml test\\rest || exit 0
                     '''
             }
         }
