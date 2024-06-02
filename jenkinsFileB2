@@ -8,17 +8,37 @@ pipeline {
                 git 'https://github.com/Zephyro-E/eroman_unir.git'
             }
         }
-        stage('Unit and Coverage') {
-            steps {
-                catchError (buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+        stage ('Unit, Security y Static') {
+            parallel {
+                stage('Unit and Coverage') {
+                    steps {
+                        catchError (buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                            bat '''
+                                set PYTHONPATH=%WORKSPACE%
+                                pytest --junitxml=result-unit.xml test\\unit || exit 0
+                                coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest test\\unit
+                                coverage xml
+                            '''
+                        cobertura coberturaReportFile:'coverage.xml', conditionalCoverageTargets: '100,80,90', lineCoverageTargets: '100,85,95', onlyStable: false, failUnstable: false
+                        junit 'result-unit.xml'
+                        }
+                    }
+                }
+                stage('Static') {
+                    steps {
+                            bat '''
+                            flake8 --exit-zero --ignore=W391 --format=pylint app >flake8.out
+                            '''
+                        recordIssues tools: [flake8(name: 'flake8', pattern: 'flake8.out')], qualityGates: [[threshold:8, type: 'TOTAL', unstable: true], [threshold: 10, type: 'TOTAL', unstable: false]]
+                    }
+                }
+                stage('Security') {
+                    steps {
                     bat '''
-                        set PYTHONPATH=%WORKSPACE%
-                        pytest --junitxml=result-unit.xml test\\unit || exit 0
-                        coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest test\\unit
-                        coverage xml
+                        bandit --exit-zero -r . -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
                     '''
-                cobertura coberturaReportFile:'coverage.xml', conditionalCoverageTargets: '100,80,90', lineCoverageTargets: '100,85,95', onlyStable: false, failUnstable: false
-                junit 'result-unit.xml'
+                    recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[threshold:2, type: 'TOTAL', unstable: true], [threshold: 4, type: 'TOTAL', unstable: false]]
+                    }
                 }
             }
         }
@@ -33,22 +53,6 @@ pipeline {
                     '''
             }
         }
-        stage('Static') {
-                        steps {
-                            bat '''
-                                flake8 --exit-zero --ignore=W391 --format=pylint app >flake8.out
-                            '''
-                            recordIssues tools: [flake8(name: 'flake8', pattern: 'flake8.out')], qualityGates: [[threshold:8, type: 'TOTAL', unstable: true], [threshold: 10, type: 'TOTAL', unstable: false]]
-                        }
-                    }
-        stage('Security') {
-                        steps {
-                            bat '''
-                               bandit --exit-zero -r . -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
-                            '''
-                            recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[threshold:2, type: 'TOTAL', unstable: true], [threshold: 4, type: 'TOTAL', unstable: false]]
-                        }
-                    }
         stage('Performance') {
                         steps {
                             bat '''
