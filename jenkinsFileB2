@@ -6,7 +6,7 @@ pipeline {
             steps {
                 // Obtener el código del repo
                 git 'https://github.com/Zephyro-E/eroman_unir.git'
-                stash name: 'code', includes:'**'
+                stash name: 'code', includes:''
             }
         }
         stage ('rest, unit y performance') {
@@ -16,7 +16,7 @@ pipeline {
                         label 'windows'
                     }
                     steps {
-                        unstash 'code'
+                        unstash name: 'code'
                             bat '''
                                 set PYTHONPATH=%WORKSPACE%
                                 pytest --junitxml=result-unit.xml test\\unit || exit 0
@@ -32,7 +32,7 @@ pipeline {
                         label 'linux1'
                     }
                     steps {
-                        unstash 'code'
+                        unstash name: 'code'
                         sh '''
                             set FLASK_APP=app\\api.py
                             start flask run
