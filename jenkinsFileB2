@@ -17,10 +17,11 @@ pipeline {
                     }
                     steps {
                         unstash name: 'code'
-                            echo ${WORKSPACE}
+
+                            sh '''
+                            echo $WORKSPACE
                             whoami
                             hostname
-                            sh '''
                                 set PYTHONPATH=%WORKSPACE%
                                 pytest --junitxml=result-unit.xml test\\unit || exit 0
                                 coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest test\\unit
@@ -36,11 +37,11 @@ pipeline {
                         label 'linux1'
                     }
                     steps {
-                            echo ${WORKSPACE}
-                            whoami
-                            hostname
                         unstash name: 'code'
                         sh '''
+                            echo $WORKSPACE
+                            whoami
+                            hostname
                             set FLASK_APP=app\\api.py
                             start flask run
                         
