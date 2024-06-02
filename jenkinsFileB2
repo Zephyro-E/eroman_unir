@@ -18,7 +18,7 @@ pipeline {
                     steps {
                         unstash name: 'code'
 
-                            sh '''
+                            bat '''
                             echo $WORKSPACE
                             whoami
                             hostname
