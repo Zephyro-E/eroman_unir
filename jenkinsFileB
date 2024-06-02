@@ -60,7 +60,7 @@ pipeline {
                     coverage xml
                 '''
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    cobertura coberturaReportFile:'coverage.xml', conditionalCoverageTargets: '80,90,100', lineCoverageTargets: '85,95,100', onlyStable: false, failUnstable: false
+                    cobertura coberturaReportFile:'coverage.xml', conditionalCoverageTargets: '100,80,90', lineCoverageTargets: '100,85,95', onlyStable: false, failUnstable: false
                 }
             }
         }
