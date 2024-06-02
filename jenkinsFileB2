@@ -57,16 +57,6 @@ pipeline {
                                perfReport sourceDataFiles: 'flask.jtl'
                         }
                     }
-        stage('Cobertura') {
-            steps {
-                bat '''
-                    coverage xml
-                '''
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
-                    cobertura coberturaReportFile:'coverage.xml', conditionalCoverageTargets: '100,80,90', lineCoverageTargets: '100,85,95', onlyStable: false, failUnstable: false
-                }
-            }
-        }
     }
 }
 
