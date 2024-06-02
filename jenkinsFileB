@@ -14,9 +14,9 @@ pipeline {
                     bat '''
                         set PYTHONPATH=%WORKSPACE%
                         pytest --junitxml=result-unit.xml test\\unit || exit 0
-                        junit 'result-unit.xml'
                         coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest test\\unit
                     '''
+                    junit 'result-unit.xml'
                 }
             }
         }
