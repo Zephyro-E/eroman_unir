@@ -20,13 +20,13 @@ pipeline {
             }
         }
         stage('Rest') {
-                        steps {
-                            bat '''
+            steps {
+                bat '''
                     set FLASK_APP=app\\api.py
                     start flask run
                 
                     set PYTHONPATH=%WORKSPACE%
-                    pytest --junitxml=result-unit.xml test\\rest || exit 0
+                    pytest --junitxml=result-rest.xml test\\rest || exit 0
                     '''
             }
         }
