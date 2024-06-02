@@ -24,7 +24,6 @@ pipeline {
                             '''
                         cobertura coberturaReportFile:'coverage.xml', conditionalCoverageTargets: '100,80,90', lineCoverageTargets: '100,85,95', onlyStable: false, failUnstable: false
                         junit 'result-unit.xml'
-                        }
                     }
                 }
                 stage('Rest') {
@@ -69,18 +68,15 @@ pipeline {
             }
         }
         stage('Security') {
-        agent {
-            label 'windows'
-        }
-            steps {
-                bat '''
-                    bandit --exit-zero -r . -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
-                '''
-                recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[threshold:2, type: 'TOTAL', unstable: true], [threshold: 4, type: 'TOTAL', unstable: false]]
+            agent {
+                label 'windows'
             }
+                steps {
+                    bat '''
+                        bandit --exit-zero -r . -f custom -o bandit.out --severity-level medium --msg-template "{abspath}:{line}: [{test_id}] {msg}"
+                    '''
+                    recordIssues tools: [pyLint(name: 'Bandit', pattern: 'bandit.out')], qualityGates: [[threshold:2, type: 'TOTAL', unstable: true], [threshold: 4, type: 'TOTAL', unstable: false]]
+                }
         }
     }
 }
-        
-  
-
