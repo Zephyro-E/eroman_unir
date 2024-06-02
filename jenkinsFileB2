@@ -17,12 +17,16 @@ pipeline {
                     }
                     steps {
                         unstash name: 'code'
-                            bat '''
+                            echo ${WORKSPACE}
+                            whoami
+                            hostname
+                            sh '''
                                 set PYTHONPATH=%WORKSPACE%
                                 pytest --junitxml=result-unit.xml test\\unit || exit 0
                                 coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest test\\unit
                                 coverage xml
                             '''
+                            stash name: 'code'. includes:''
                         cobertura coberturaReportFile:'coverage.xml', conditionalCoverageTargets: '100,80,90', lineCoverageTargets: '100,85,95', onlyStable: false, failUnstable: false
                         junit 'result-unit.xml'
                     }
@@ -32,6 +36,9 @@ pipeline {
                         label 'linux1'
                     }
                     steps {
+                            echo ${WORKSPACE}
+                            whoami
+                            hostname
                         unstash name: 'code'
                         sh '''
                             set FLASK_APP=app\\api.py
@@ -40,6 +47,7 @@ pipeline {
                             set PYTHONPATH=%WORKSPACE%
                             pytest --junitxml=result-rest.xml test\\rest || exit 0
                             '''
+                        stash name: 'code'. includes:''
                     }
                 }
                 stage('Performance') {
