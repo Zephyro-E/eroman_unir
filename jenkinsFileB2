@@ -8,7 +8,7 @@ pipeline {
                 git 'https://github.com/Zephyro-E/eroman_unir.git'
             }
         }
-        stage (rest, unit y performance) {
+        stage ('rest, unit y performance') {
             parallel{
                 stage('Unit and Coverage') {
                     agent {
