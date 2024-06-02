@@ -9,6 +9,9 @@ class TestCalculate(unittest.TestCase):
     def setUp(self):
         self.calc = Calculator()
 
+    def test_divide_by_zero_raises_exception(self):
+        self.assertRaises(TypeError, self.calc.divide, 1, 0)
+
     def test_add_method_returns_correct_result(self):
         self.assertEqual(4, self.calc.add(2, 2))
         self.assertEqual(0, self.calc.add(2, -2))
