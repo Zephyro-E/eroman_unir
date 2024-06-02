@@ -15,6 +15,7 @@ pipeline {
                     agent {
                         label 'windows'
                     }
+                    unstash 'code'
                     steps {
                             bat '''
                                 set PYTHONPATH=%WORKSPACE%
@@ -30,8 +31,8 @@ pipeline {
                     agent {
                         label 'linux1'
                     }
+                    unstash 'code'
                     steps {
-                        unstash 'code'
                         sh '''
                             set FLASK_APP=app\\api.py
                             start flask run
