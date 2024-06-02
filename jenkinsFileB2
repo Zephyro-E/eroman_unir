@@ -8,15 +8,18 @@ pipeline {
                 git 'https://github.com/Zephyro-E/eroman_unir.git'
             }
         }
-        stage('Unit') {
+        stage('Unit and Coverage') {
             steps {
                 catchError (buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
                     bat '''
                         set PYTHONPATH=%WORKSPACE%
                         pytest --junitxml=result-unit.xml test\\unit || exit 0
                         coverage run --branch --source=app --omit=app\\__init__.py,app\\api.py -m pytest test\\unit
+                        coverage xml
                     '''
-                    junit 'result-unit.xml'
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE') {
+                cobertura coberturaReportFile:'coverage.xml', conditionalCoverageTargets: '100,80,90', lineCoverageTargets: '100,85,95', onlyStable: false, failUnstable: false
+                junit 'result-unit.xml'
                 }
             }
         }
